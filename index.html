@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0a1020" />
+  <meta name="description" content="Vinicius Web Studio: sites profissionais para pequenos negócios com atendimento claro, preço justo e entregas ágeis. B2B Intelligence — dados reais de prospecção com apoio de IA." />
+  <title>B2B Intelligence | Vinicius Web Studio</title>
+  <style>
+    :root { font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; color: #edf4ff; background: #0a1020; font-synthesis:none; scroll-behavior:smooth; }
+    * { box-sizing:border-box; }
+    body { margin:0; overflow-x:hidden; background: radial-gradient(ellipse 650px 420px at 98% -2%,rgba(53,110,191,.22),transparent), radial-gradient(ellipse 560px 400px at 0 35%,rgba(12,93,122,.09),transparent),#0a1020; }
+    a { color:inherit; }
+    button, input, select { font:inherit; }
+    button { cursor:pointer; }
+    .shell { max-width:1180px; margin:auto; padding:0 26px; }
+    .nav { border-bottom:1px solid #26314a; background:rgba(10,16,32,.88); backdrop-filter:blur(14px); position:sticky;top:0;z-index:20; }
+    .nav-inner { min-height:77px;display:flex;align-items:center;justify-content:space-between;gap:22px; }
+    .brand { display:flex; align-items:center; gap:13px; text-decoration:none; }
+    .brand-logo { background:linear-gradient(135deg,#66d8cb,#74a2ff); color:#08172a; width:41px;height:41px;display:grid;place-items:center;border-radius:12px;font-size:14px;font-weight:950; }
+    .brand-text strong { display:block;font-size:15px;letter-spacing:-.3px; } .brand-text small { color:#90a3c4;font-size:10px;letter-spacing:1.8px;font-weight:700; }
+    .navlinks { display:flex;align-items:center;gap:24px; }
+    .navlinks a:not(.btn) { font-size:13px;color:#adbad0;text-decoration:none;white-space:nowrap; } .navlinks a:hover { color:#f0f8ff; }
+    .btn { display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:12px 18px;border-radius:11px;text-decoration:none;font-size:13px;font-weight:750;border:1px solid #425578;color:#ecf5ff;background:#172842;white-space:nowrap; }
+    .btn:hover {filter:brightness(1.08);transform:translateY(-1px);} .btn-primary { color:#061626; background:#76e1d1;border-color:#76e1d1; }
+    .btn-ghost { background:#121e34;border-color:#34415c; }
+    .hero { padding:82px 0 64px;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr);gap:46px;align-items:center; }
+    .eyebrow { text-transform:uppercase;letter-spacing:2.2px;color:#7cd7c7;font-size:11px;font-weight:800; }
+    .hero h1 {font-size:clamp(36px,4.9vw,65px);letter-spacing:-2.7px;line-height:1.08;margin:16px 0 21px;max-width:800px;}
+    .hero h1 em { color:#7fe1d1;font-style:normal; }
+    .hero .lead { color:#b3c1d7;line-height:1.75;font-size:16px;max-width:630px; margin:0 0 27px; }
+    .actions {display:flex;gap:10px;flex-wrap:wrap;}
+    .footnote { color:#8ca0bd;font-size:12px;margin-top:20px;line-height:1.65; }
+    .hero-card {background:linear-gradient(155deg,#1a3450,#101c31 65%);border:1px solid #36526b;border-radius:24px;padding:27px;box-shadow:0 20px 70px #0006;position:relative;overflow:hidden;}
+    .hero-card:before {content:"";position:absolute;right:-90px;top:-100px;width:240px;height:240px;border-radius:50%;background:#64ddc42b;filter:blur(6px);}
+    .hc-label {display:inline-block;font-size:11px;font-weight:750;color:#a8e9db;letter-spacing:1px;}
+    .hero-card h2 {font-size:23px;line-height:1.3;letter-spacing:-.6px;margin:17px 0 22px;max-width:260px;position:relative;}
+    .hc-row {position:relative;display:flex;align-items:center;gap:11px;padding:13px 0;border-top:1px solid #34506c;color:#d8e5f9;font-size:13px;}
+    .hc-icon {width:35px;height:35px;border-radius:9px;background:#264960;display:grid;place-items:center;color:#9debdc;flex:none;}
+    .section {padding:31px 0 50px;scroll-margin-top:95px;}
+    .heading {display:flex;justify-content:space-between;align-items:end;gap:22px;flex-wrap:wrap;margin-bottom:23px;}
+    .heading h2 {font-size:clamp(23px,3vw,35px);line-height:1.15;letter-spacing:-1.1px;margin:9px 0 8px;}
+    .desc {color:#a4b4d0;max-width:730px;line-height:1.7;font-size:14px;margin:0;}
+    .tag {display:inline-flex;align-items:center;gap:7px;border:1px solid #34526a;padding:8px 11px;border-radius:99px;color:#94dacd;background:#122a36;font-size:11px;font-weight:750;white-space:nowrap;}
+    .dashboard {border:1px solid #2b3b57;background:#10192d;border-radius:24px;padding:26px;box-shadow:0 10px 42px #0003;}
+    .dash-head {display:flex;justify-content:space-between;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:21px;}
+    .dash-head h3 {margin:0 0 5px;font-size:19px;letter-spacing:-.4px;}.muted {font-size:12px;line-height:1.6;color:#93a6c4;}
+    .live {display:inline-flex;align-items:center;gap:8px;font-size:12px;color:#88d6bd;font-weight:700;}
+    .live:before {content:"";width:7px;height:7px;border-radius:50%;background:#5bddae;box-shadow:0 0 0 4px #5bddae1d;}
+    .stats {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;}
+    .stat {background:#16223a;border:1px solid #2b3956;border-radius:15px;padding:19px;min-width:0;}
+    .stat small {font-size:12px;color:#acbdd7;display:block;min-height:20px;}.stat strong {display:block;font-size:31px;letter-spacing:-1px;margin:12px 0 3px;}.stat span {font-size:11px;color:#8498ba;}
+    .charts {display:grid;grid-template-columns:1.1fr .9fr;gap:15px;margin-top:15px;}
+    .card {background:#131f36;border:1px solid #2c3b59;border-radius:16px;padding:22px;min-width:0;}
+    .card h4 {font-size:15px;margin:0 0 5px;}.bars {display:grid;gap:18px;margin-top:22px;}
+    .bar-name {display:flex;justify-content:space-between;gap:10px;font-size:12px;margin-bottom:8px;}
+    .track {width:100%;background:#2c3953;height:10px;border-radius:12px;overflow:hidden;}.fill {height:100%;width:0;border-radius:12px;background:#75e0ca;transition:width .4s;}.fill.medium {background:#93aafb;}.fill.other {background:#7a8ba6;}
+    .ring-row {display:flex;align-items:center;gap:21px;margin-top:17px;}
+    .ring {position:relative; flex:none;display:grid;place-items:center;height:145px;width:145px;border-radius:50%;background:#2d3e57;}
+    .ring:after {content:"";position:absolute;inset:28px;border-radius:50%;background:#131f36;}
+    .ring-center {z-index:1;font-size:23px;font-weight:850;text-align:center;}.ring-center small {display:block;font-size:11px;font-weight:500;color:#90a4c4;}
+    .legend {display:grid;gap:12px;}.legend span {display:flex;align-items:center;gap:8px;font-size:12px;color:#b6c4db;}
+    .legend i {width:8px;height:8px;border-radius:3px;background:#75e0ca;}.legend i.med {background:#93aafb;}.legend i.other {background:#7a8ba6;}
+    .directory {margin-top:17px;}.dir-head {display:flex;justify-content:space-between;gap:15px;align-items:center;flex-wrap:wrap;margin-bottom:14px;}
+    .dir-head h3 {font-size:18px;margin:0 0 6px;}.tabs {display:flex;gap:8px;flex-wrap:wrap;margin:16px 0;}
+    .tabs button {padding:10px 14px;border-radius:10px;border:1px solid #344560;background:#1a2a43;color:#c4d2e8;font-size:12px;font-weight:730;}
+    .tabs button.active {background:#77e1d1;color:#081c2c;border-color:#77e1d1;}
+    .filters {display:grid;grid-template-columns:1fr 250px;gap:11px;margin-bottom:12px;}
+    .filters input,.filters select {min-width:0;width:100%;padding:12px 14px;background:#0e1a2f;border:1px solid #344560;color:#eef5ff;border-radius:10px;font-size:13px;}
+    .filters input:focus,.filters select:focus {outline:2px solid #66d6ca;outline-offset:1px;}
+    .table-wrap {overflow-x:auto;}table {width:100%;border-collapse:collapse;text-align:left;}th {font-size:10px;color:#91a3c2;letter-spacing:.7px;padding:13px 11px;border-bottom:1px solid #34425b;}td {padding:15px 11px;border-bottom:1px solid #26344c;font-size:13px;color:#d9e6f8;}tr:last-child td {border-bottom:none;}
+    .business {display:flex;align-items:center;gap:11px;min-width:150px;}.avatar {width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-weight:800;color:#b7eee4;background:#214357;flex:none;}.alias {font-weight:750;}.micro {font-size:10px;color:#8499b7;margin-top:4px;}
+    .pill {display:inline-block;background:#1c463f;color:#92e1bf;padding:6px 10px;border-radius:99px;font-size:11px;font-weight:750;white-space:nowrap;}.pill.med {background:#2b3f66;color:#bfd2ff;}
+    .pagination {display:flex;justify-content:space-between;align-items:center;gap:15px;margin-top:18px;flex-wrap:wrap;font-size:12px;color:#99adca;}
+    .pagination button,.refresh {padding:9px 13px;border:1px solid #394b68;border-radius:9px;background:#182942;color:#ecf4ff;font-size:12px;font-weight:700;}.pagination button:disabled {opacity:.35;cursor:default;}
+    .empty {padding:36px 14px;text-align:center;color:#a1b2cd;line-height:1.65;}.notice {color:#c2d4ed;background:#1d304c;border:1px solid #3a526c;padding:13px;border-radius:10px;font-size:12px;line-height:1.6;margin-top:15px;}
+    .privacy {margin-top:18px;color:#99aecb;font-size:12px;line-height:1.6;padding:13px 15px;border-left:3px solid #5bbaa9;background:#14263a;}
+    .steps {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px;}
+    .step {background:#121f35;border:1px solid #2c3e59;border-radius:18px;padding:24px;}.step strong.num {font-size:12px;color:#7de0cf;letter-spacing:1.4px;}.step h3 {font-size:19px;letter-spacing:-.45px;margin:19px 0 9px;}.step p {margin:0;color:#aabbd4;font-size:13px;line-height:1.75;}
+    .pitch {display:grid;grid-template-columns:1.1fr .9fr;gap:24px;align-items:center;border:1px solid #3c6570;background:linear-gradient(120deg,#173d4a,#152945 68%);border-radius:23px;padding:32px;}
+    .pitch h2 {margin:9px 0 12px;font-size:clamp(26px,3.2vw,38px);line-height:1.17;letter-spacing:-1.1px;}.pitch p {color:#c3d6e6;line-height:1.75;font-size:14px;margin:0 0 20px;}
+    .pitch-aside {background:#102337ba;border:1px solid #53737c;border-radius:16px;padding:23px;}.pitch-aside h3 {margin:0 0 12px;font-size:16px;}.pitch-aside ul {list-style:none;margin:0;padding:0;display:grid;gap:13px;}.pitch-aside li {display:flex;gap:9px;font-size:13px;color:#d6e7f6;line-height:1.4;}.pitch-aside li:before {content:'✓';color:#81ebd5;font-weight:900;}
+    .footer {border-top:1px solid #283550;margin-top:55px;padding:28px 0 40px;color:#92a5c0;font-size:12px;display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap;align-items:center;}.footer a {color:#b7dedb;text-decoration:none;}
+    #setup {display:none;border:1px dashed #5a7897;background:#182c43;border-radius:14px;padding:19px;margin-bottom:18px;}.setup-row {display:flex;gap:9px;margin-top:11px;}.setup-row input {min-width:0;flex:1;padding:12px;border-radius:8px;background:#0f1d30;border:1px solid #526a87;color:white;}.setup-row button {padding:10px 16px;border-radius:8px;border:0;background:#80e1d0;color:#092138;font-weight:800;}
+    [hidden] {display:none!important;}
+    @media(max-width:930px){.hero{grid-template-columns:1fr;gap:28px;padding:60px 0 30px}.hero-card{max-width:600px}.navlinks a:not(.btn){display:none}.charts,.pitch{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,minmax(0,1fr));}}
+    @media(max-width:620px){.shell{padding:0 16px}.nav-inner{min-height:65px}.hero{padding:45px 0 28px}.hero h1{letter-spacing:-1.8px}.hero .lead{font-size:14px}.hero-card{padding:23px}.dashboard{padding:15px;border-radius:17px}.stats{gap:8px}.stat{padding:14px}.stat strong{font-size:26px}.charts{gap:9px}.card{padding:17px}.ring{width:116px;height:116px}.ring:after{inset:23px}.ring-row{gap:12px}.filters{grid-template-columns:1fr}.steps{grid-template-columns:1fr}.pitch{padding:23px}.actions .btn{white-space:normal;text-align:center}.setup-row{flex-direction:column}.navlinks .btn{font-size:11px;padding:10px 11px}.brand-text strong{font-size:12px}.brand-logo{width:36px;height:36px;font-size:11px}}
+    @media(max-width:380px){.stats{grid-template-columns:1fr 1fr}.stat small{font-size:11px}.ring-row{flex-direction:column;align-items:start}.tabs button{font-size:11px;padding:9px}}
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="shell nav-inner">
+      <a class="brand" href="#inicio" aria-label="Vinicius Web Studio, voltar ao início">
+        <span class="brand-logo">VW</span>
+        <span class="brand-text"><small>VINICIUS WEB STUDIO</small><strong>B2B Intelligence</strong></span>
+      </a>
+      <nav class="navlinks" aria-label="Navegação">
+        <a href="#painel">O painel</a><a href="#metodo">Como funciona</a><a href="#servicos">Sobre o estúdio</a>
+        <a class="btn btn-primary" href="https://www.instagram.com/vinicius.webstudio/" target="_blank" rel="noopener noreferrer">Ver Instagram ↗</a>
+      </nav>
+    </div>
+  </header>
+  <main class="shell" id="inicio">
+    <section class="hero" aria-label="Apresentação">
+      <div>
+        <div class="eyebrow">PROSPECÇÃO REAL · IA COMO FERRAMENTA</div>
+        <h1>Seu negócio merece <em>ser encontrado.</em></h1>
+        <p class="lead">Muitos pequenos empreendedores sabem fazer um ótimo trabalho, mas ainda não conseguem mostrar tudo o que oferecem na internet. A <strong>Vinicius Web Studio</strong> ajuda a mudar isso: explicamos cada etapa, criamos sites claros e profissionais e facilitamos o contato com novos clientes — com preço justo e entrega ágil.</p>
+        <div class="actions">
+          <a class="btn btn-primary" href="https://www.instagram.com/vinicius.webstudio/" target="_blank" rel="noopener noreferrer">Conheça nosso trabalho ↗</a>
+          <a class="btn btn-ghost" href="#painel">Explorar o projeto ↓</a>
+        </div>
+        <div class="footnote">Sem jargão, sem promessas milagrosas: soluções digitais explicadas de forma simples.</div>
+      </div>
+      <aside class="hero-card">
+        <span class="hc-label">ESTE É UM PROJETO DE VERDADE</span>
+        <h2>De dados públicos a oportunidades de presença digital.</h2>
+        <div class="hc-row"><span class="hc-icon">01</span> Pesquisa de negócios locais com apoio de IA</div>
+        <div class="hc-row"><span class="hc-icon">02</span> Análise de presença digital e potencial comercial</div>
+        <div class="hc-row"><span class="hc-icon">03</span> Oferta de sites para apresentar serviços e facilitar contatos</div>
+      </aside>
+    </section>
+
+    <section class="section" id="painel">
+      <div class="heading">
+        <div><div class="eyebrow">B2B INTELLIGENCE · PAINEL PÚBLICO</div><h2>Dados reais. Empresas preservadas.</h2><p class="desc">Negócios identificados em uma prospecção apoiada por IA. O painel apresenta apenas nomes parciais, segmentos e indicadores de presença digital. Nomes completos e contatos não são divulgados.</p></div>
+        <span class="tag">● Dados da base de prospecção</span>
+      </div>
+      <div class="dashboard">
+        <div id="setup"><strong>Conectar o dashboard ao seu Cloudflare Worker</strong><p class="muted">Insira o endereço da API para testar. Para que visitantes também recebam os dados, configure o endereço dentro do arquivo index.html antes de publicar.</p><div class="setup-row"><input type="url" id="apiInput" placeholder="https://seu-worker.workers.dev" /><button id="saveApi">Conectar</button></div></div>
+        <div class="dash-head"><div><h3>Mapa de oportunidades comerciais</h3><div class="muted">Classificação transparente, baseada em sinais de presença digital — não em taxas de conversão presumidas.</div></div><span class="live" id="connection" aria-live="polite">Carregando...</span></div>
+        <div class="stats" aria-label="Indicadores da prospecção">
+          <article class="stat"><small>Negócios mapeados</small><strong id="total">—</strong><span>Base real de prospecção</span></article>
+          <article class="stat"><small>Potencial elevado</small><strong id="alta">—</strong><span>Instagram + oportunidade de site</span></article>
+          <article class="stat"><small>Potencial intermediário</small><strong id="media">—</strong><span>Oportunidade de presença online</span></article>
+          <article class="stat"><small>Já contatadas</small><strong id="contatadas">—</strong><span>Identidades não divulgadas</span></article>
+        </div>
+        <div class="charts">
+          <div class="card"><h4>Potencial comercial</h4><div class="muted">Distribuição dos negócios ainda disponíveis para contato.</div>
+            <div class="bars"><div><div class="bar-name"><span>Elevado</span><b id="altaBarN">—</b></div><div class="track"><div class="fill" id="altaBar"></div></div></div><div><div class="bar-name"><span>Intermediário</span><b id="mediaBarN">—</b></div><div class="track"><div class="fill medium" id="mediaBar"></div></div></div><div><div class="bar-name"><span>Requer revisão</span><b id="revisarBarN">—</b></div><div class="track"><div class="fill other" id="revisarBar"></div></div></div></div>
+          </div>
+          <div class="card"><h4>Panorama da base ativa</h4><div class="muted">Indicadores agregados; os registros contatados não aparecem nas listas.</div>
+            <div class="ring-row"><div class="ring" id="ring"><div class="ring-center" id="activeTotal">—<small>ativas</small></div></div><div class="legend"><span><i></i> Elevado</span><span><i class="med"></i> Intermediário</span><span><i class="other"></i> Revisão</span></div></div>
+          </div>
+        </div>
+        <div class="card directory">
+          <div class="dir-head"><div><h3>Oportunidades identificadas</h3><div class="muted">Nome parcialmente oculto, bairro e tipo de atividade.</div></div><button class="refresh" id="reload" type="button">↻ Atualizar dados</button></div>
+          <div class="tabs" role="tablist" aria-label="Categorias de potencial"><button type="button" class="active" id="tabAlta" data-tab="alta" role="tab" aria-selected="true">Potencial elevado</button><button type="button" id="tabMedia" data-tab="media" role="tab" aria-selected="false">Potencial intermediário</button><button type="button" id="tabContatadas" data-tab="contatadas" role="tab" aria-selected="false">Já contatadas</button></div>
+          <div id="listArea"><div class="filters"><input id="search" type="search" placeholder="Buscar por iniciais ou atividade..." aria-label="Buscar oportunidades" /><select id="segmento" aria-label="Filtrar por especialidade"><option value="">Todas as atividades</option></select></div>
+            <div class="table-wrap"><table><thead><tr><th>EMPRESA (PARCIAL)</th><th>REGIÃO</th><th>ATIVIDADE</th><th>POTENCIAL COMERCIAL</th></tr></thead><tbody id="rows"><tr><td colspan="4" class="empty">Buscando dados...</td></tr></tbody></table></div>
+            <div class="pagination"><span id="showing">—</span><div><button type="button" id="prev">Anterior</button> <button type="button" id="next">Próxima</button></div></div>
+          </div>
+          <div id="contactArea" hidden class="empty">As empresas já contatadas continuam na planilha privada e não são identificadas aqui.<div style="font-size:29px;font-weight:900;color:#e4f7f3;margin-top:10px" id="contactCount">—</div><div>empresas contatadas</div></div>
+          <div id="message" class="notice" hidden role="alert"></div>
+          <div class="privacy">Por que os nomes estão ocultos? Este é um projeto demonstrativo com dados de prospecção reais. Mostramos critérios e volumes sem expor empresas individualmente. “Potencial comercial” indica uma oportunidade de melhorar a presença digital, não uma probabilidade medida de venda.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="metodo"><div class="heading"><div><div class="eyebrow">O PROCESSO</div><h2>Inteligência comercial com propósito.</h2><p class="desc">A tecnologia serve para encontrar oportunidades. O que faz diferença é explicar os benefícios para quem está ocupado cuidando do próprio negócio.</p></div></div>
+      <div class="steps"><article class="step"><strong class="num">ETAPA 01</strong><h3>Encontramos oportunidades</h3><p>Pesquisamos pequenos negócios e organizamos informações de presença digital com apoio de IA. A base tem origem real, mas seus registros são apresentados de forma parcial ao público.</p></article><article class="step"><strong class="num">ETAPA 02</strong><h3>Entendemos o que falta</h3><p>Avaliamos sinais como Instagram e presença de site próprio. As categorias são indicativas e podem exigir conferência, sem inventar taxas de sucesso ou faturamento.</p></article><article class="step"><strong class="num">ETAPA 03</strong><h3>Transformamos em algo útil</h3><p>Oferecemos páginas que apresentam serviços, fotos e formas claras de contato. Tudo explicado sem complicação e com preços transparentes e prazos combinados.</p></article></div>
+    </section>
+
+    <section class="section" id="servicos"><div class="pitch"><div><div class="eyebrow">POR TRÁS DO PROJETO</div><h2>Tecnologia não precisa ser complicada para quem empreende.</h2><p>Sabemos que muitos profissionais têm receio de investir em algo digital que não entendem. Na <strong>Vinicius Web Studio</strong>, o objetivo é justamente o contrário: mostrar o que será feito, explicar como seu site ajuda as pessoas a conhecerem os serviços e entregar uma solução profissional, acessível e sem enrolação.</p><div class="actions"><a class="btn btn-primary" href="https://www.instagram.com/vinicius.webstudio/" target="_blank" rel="noopener noreferrer">Ver projetos no Instagram ↗</a><a class="btn btn-ghost" href="https://salao-de-beleza.conectaweb.workers.dev/" target="_blank" rel="noopener noreferrer">Ver exemplo de site ↗</a></div></div><aside class="pitch-aside"><h3>O que valorizamos</h3><ul><li>Preço justo, com orçamento claro antes de começar</li><li>Site pensado para o celular e o WhatsApp</li><li>Comunicação acessível, sem termos difíceis</li><li>Entrega rápida, com prazo definido para cada projeto</li><li>Presença digital que apresenta melhor o seu trabalho</li></ul></aside></div></section>
+  </main>
+  <footer class="shell footer"><span>© <span id="year"></span> Vinicius Web Studio · B2B Intelligence — projeto real de prospecção assistida por IA.</span><div><a href="https://www.instagram.com/vinicius.webstudio/" target="_blank" rel="noopener noreferrer">Instagram ↗</a> · <a href="https://docs.google.com/spreadsheets/d/1eUBhqHbmZTTvI5diD3n3Czi-D1hWTT7uabBAUtSP3-4/edit" target="_blank" rel="noopener noreferrer">Planilha original (acesso restrito) ↗</a></div><span id="lastUpdate">Dados ainda não carregados</span></footer>
+<script>
+// IMPORTANTE: troque pela URL PUBLICA do seu Worker antes de publicar no Pages.
+// O Worker deve ocultar os nomes completos na API e retornar a regiao em e.regiao.
+const WORKER_URL = "";
+const $ = id => document.getElementById(id);
+let dados = null, abaAtual = 'alta', pagina = 0;
+const tamanhoPagina = 12;
+const escapar = x => String(x ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const numero = n => Number(n || 0).toLocaleString('pt-BR');
+function apiUrl() {return (WORKER_URL || localStorage.getItem('b2bWorkerUrl') || '').replace(/\/+$/, '');}
+function estado(mensagem, erro=false) { $('connection').textContent = mensagem; $('connection').style.color=erro?'#ffb7b7':'#88d6bd'; }
+async function carregar() {
+  const url = apiUrl();
+  if(!url) { $('setup').style.display='block';estado('API pendente',true);$('rows').innerHTML='<tr><td colspan="4" class="empty">Conecte o endereço do seu Worker para ver os indicadores.</td></tr>';return; }
+  $('setup').style.display='none';$('message').hidden=true;estado('Atualizando...');
+  try {
+    const resposta = await fetch(url, {cache:'no-store'});
+    if (!resposta.ok) throw Error('Resposta HTTP '+resposta.status);
+    const json = await resposta.json();
+    if (!json.indicadores || !Array.isArray(json.abas?.alta) || !Array.isArray(json.abas?.media)) throw Error(json.erro || 'Formato da API inválido');
+    const registros = [...json.abas.alta,...json.abas.media];
+    // Falha segura: o dashboard não funciona com a API antiga que expõe nome e bairro.
+    if (registros.some(e => !e.rotulo || 'nome' in e || 'bairro' in e)) {
+      throw Error('API antiga ou não anonimizada. Atualize o Worker usando o arquivo worker.js antes de publicar');
+    }
+    dados = json;atualizar();estado('Dados atualizados');
+  } catch(err) {
+    estado('Conexão indisponível',true);$('message').hidden=false;
+    $('message').textContent='Não foi possível carregar os dados: '+err.message;
+    $('rows').innerHTML='<tr><td colspan="4" class="empty">Dados temporariamente indisponíveis.</td></tr>';
+    if (!WORKER_URL) $('setup').style.display='block';
+  }
+}
+function atualizar(){
+  const i=dados.indicadores;const alto=Number(i.alta||0),medio=Number(i.media||0),revisar=Number(i.revisar||0),contatadas=Number(i.contatadas||0),ativas=alto+medio+revisar;
+  for(const [nome,valor] of Object.entries({total:i.total,alta:alto,media:medio,contatadas})) $(nome).textContent=numero(valor);
+  for(const [id,val] of Object.entries({alta:alto,media:medio,revisar})) {$(`${id}BarN`).textContent=numero(val);$(`${id}Bar`).style.width=`${ativas?(val/ativas)*100:0}%`;}
+  $('ring').style.background=ativas?`conic-gradient(#75e0ca 0 ${alto/ativas*100}%,#93aafb ${alto/ativas*100}% ${(alto+medio)/ativas*100}%,#7a8ba6 ${(alto+medio)/ativas*100}% 100%)`:'#28364d';
+  $('activeTotal').innerHTML=`${numero(ativas)}<small>ativas</small>`;
+  $('contactCount').textContent=numero(contatadas);
+  $('lastUpdate').textContent='Consulta: '+(dados.atualizadoEm?new Date(dados.atualizadoEm).toLocaleString('pt-BR'):'agora');
+  pagina=0;montarSegmentos();renderizar();
+}
+function lista(){return Array.isArray(dados?.abas?.[abaAtual])?dados.abas[abaAtual]:[];}
+function montarSegmentos(){
+  const atual=$('segmento').value;
+  const nichos=[...new Set(lista().map(e=>e.especialidade).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+  $('segmento').innerHTML='<option value="">Todas as atividades</option>'+nichos.map(x=>`<option value="${escapar(x)}">${escapar(x)}</option>`).join('');
+  if(nichos.includes(atual)) $('segmento').value=atual;
+}
+function renderizar(){
+  const contatada=abaAtual==='contatadas';$('listArea').hidden=contatada;$('contactArea').hidden=!contatada;
+  for(const x of ['alta','media','contatadas']) {const botao=$('tab'+x[0].toUpperCase()+x.slice(1));botao.classList.toggle('active',abaAtual===x);botao.setAttribute('aria-selected',abaAtual===x?'true':'false');}
+  if(contatada)return;
+  const pesquisa=$('search').value.trim().toLocaleLowerCase('pt-BR'),filtro=$('segmento').value;
+  const filtrados=lista().filter(x=>(!filtro||x.especialidade===filtro)&&[x.rotulo,x.codigo,x.especialidade,x.regiao].some(y=>String(y||'').toLocaleLowerCase('pt-BR').includes(pesquisa)));
+  const paginas=Math.max(1,Math.ceil(filtrados.length/tamanhoPagina));pagina=Math.min(pagina,paginas-1);
+  const visiveis=filtrados.slice(pagina*tamanhoPagina,(pagina+1)*tamanhoPagina);
+  $('rows').innerHTML=visiveis.length?visiveis.map(e=>`<tr><td><div class="business"><span class="avatar">${escapar(String(e.rotulo).slice(0,2))}</span><div><div class="alias">${escapar(e.rotulo)}</div><div class="micro">${escapar(e.codigo)}</div></div></div></td><td>${escapar(e.regiao||'São Paulo e região')}</td><td>${escapar(e.especialidade)}</td><td><span class="pill ${abaAtual==='media'?'med':''}">${abaAtual==='alta'?'Elevado':'Intermediário'}</span></td></tr>`).join(''):'<tr><td colspan="4" class="empty">Nenhum registro encontrado nesta categoria.</td></tr>';
+  $('showing').textContent=`${numero(filtrados.length)} oportunidades · página ${pagina+1} de ${paginas}`;
+  $('prev').disabled=pagina===0;$('next').disabled=pagina>=paginas-1;
+}
+for(const botao of document.querySelectorAll('[data-tab]')) botao.addEventListener('click',()=>{abaAtual=botao.dataset.tab;pagina=0;$('search').value='';montarSegmentos();renderizar();});
+$('search').addEventListener('input',()=>{pagina=0;renderizar();});$('segmento').addEventListener('change',()=>{pagina=0;renderizar();});
+$('prev').onclick=()=>{pagina--;renderizar();};$('next').onclick=()=>{pagina++;renderizar();};$('reload').onclick=carregar;
+$('saveApi').onclick=()=>{const valor=$('apiInput').value.trim();if(!/^https:\/\/[a-z0-9.-]+\.workers\.dev\/?$/i.test(valor)){alert('Informe uma URL válida que termine em workers.dev');return;}localStorage.setItem('b2bWorkerUrl',valor);carregar();};
+$('year').textContent=new Date().getFullYear();carregar();
+</script>
+</body>
+</html>
