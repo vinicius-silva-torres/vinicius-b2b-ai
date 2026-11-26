@@ -6,7 +6,7 @@ import { homedir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
-import { callSummary, leadPatch, classify, queueFrom, resultEntry } from './flow.mjs';
+import { APPROACHES, callSummary, leadPatch, classify, filterQueue, normalize, queueFrom, resultEntry } from './flow.mjs';
 import { GoogleAuth, GoogleSheets, replaceJson, spreadsheetId } from './sheets.mjs';
 
 const exec = promisify(execFile);
@@ -30,6 +30,7 @@ let observing = false;
 let cachedSheet;
 let loadedAt = 0;
 let loading;
+let dataVersion = 0;
 
 function exampleLead(id, name, niche, neighborhood, rating, score, preview, site = 'Sem site') {
   return {
@@ -62,7 +63,7 @@ async function setup() {
     sheets = new GoogleSheets(id, auth);
   } catch (error) {
     configurationError = error.code === 'ENOENT'
-      ? 'Crie o config.json e aponte para o JSON do Google. Consulte o README.'
+      ? 'Coloque o JSON do Google no caminho indicado por config.json. Consulte o guia de configuração.'
       : error.message;
   }
 }
@@ -107,11 +108,56 @@ async function phoneLink(action, number) {
 }
 
 function state() {
-  return attempt ? {
+  return { dataVersion, ...(attempt ? {
     phase: attempt.phase, leadId: attempt.leadId, attemptId: attempt.attemptId,
     startedAt: attempt.startedAt, endedAt: attempt.endedAt, detection: attempt.detection,
     message: attempt.message, approach: attempt.approach,
-  } : { phase: 'idle' };
+  } : { phase: 'idle' }) };
+}
+
+async function prepareLead(lead, approach, manual = false) {
+  const entry = {
+    phase: 'ready', attemptId: randomUUID(), leadId: lead.id, name: lead.name, phone: lead.phone,
+    approach: APPROACHES.includes(approach) ? approach : APPROACHES[0], idleReads: 0, unknownReads: 0,
+  };
+  if (manual) {
+    review(entry, 'manual', 'Confirme o resultado após encerrar no telefone.');
+  } else if (!demo) {
+    try {
+      await phoneLink('prepare', lead.phone);
+    } catch (error) {
+      entry.phase = 'manual-ready';
+      entry.message = `${error.message} Você pode copiar o telefone ou tentar preparar novamente.`;
+    }
+  }
+  attempt = entry;
+  return state();
+}
+
+async function saveEntry(entry) {
+  if (demo) {
+    const lead = demoSheet.leads.find(item => item.id === entry.leadId);
+    Object.assign(lead, leadPatch(lead, entry));
+    demoSheet.history.push(entry);
+  } else {
+    await sheets.save(entry);
+    loadedAt = 0;
+    cachedSheet = undefined;
+    // Drop a pre-write read still in progress before reloading the queue.
+    if (loading) await loading.catch(() => {});
+    loadedAt = 0;
+  }
+  dataVersion++;
+}
+
+async function advance(input, previousId) {
+  const options = input.selection ?? {};
+  const exclude = Array.isArray(options.exclude) ? options.exclude : [];
+  const [next] = filterQueue(queueFrom(await sheetData()), {
+    ...options, exclude: [...exclude, previousId],
+  }).filter(lead => ['ligar', 'retornos', 'acompanhar'].includes(lead.queue));
+  if (!next) return state();
+  return prepareLead(next, input.approach);
 }
 
 function review(entry, detection, message = '') {
@@ -165,17 +211,31 @@ async function monitor() {
 async function action(path, input) {
   if (path === '/api/open') return phoneLink('open');
   if (path === '/api/inspect') return phoneLink('inspect');
-  if (path === '/api/prepare' || path === '/api/manual') {
-    if (attempt) throw new Error('Finalize ou cancele a tentativa atual antes de avançar.');
-    const lead = await currentLead(input.leadId);
-    const entry = {
-      phase: 'ready', attemptId: randomUUID(), leadId: lead.id, name: lead.name, phone: lead.phone,
-      approach: input.approach, idleReads: 0, unknownReads: 0,
-    };
-    if (path === '/api/manual') review(entry, 'manual', 'Confirme o resultado após encerrar no telefone.');
-    else if (!demo) await phoneLink('prepare', lead.phone);
-    attempt = entry;
+  if (path === '/api/sold') {
+    if (input.confirmed !== true) throw new Error('Confirme que a venda foi fechada.');
+    if (attempt?.leadId === input.leadId) throw new Error('Finalize o registro da chamada deste lead antes de confirmar a venda.');
+    const snapshot = await sheetData();
+    const lead = snapshot.leads.find(item => item.id === input.leadId);
+    if (!lead || lead.duplicate) throw new Error('Lead indisponível.');
+    if (normalize(lead.stage) === 'fechada') return state();
+    if (!['interessada', 'proposta enviada'].includes(normalize(lead.stage))) {
+      throw new Error('Abra a ficha de uma empresa interessada ou com proposta enviada.');
+    }
+    const prior = snapshot.history.findLast(item => item.leadId === lead.id && ['proposal', 'preview'].includes(item.result));
+    await saveEntry({
+      attemptId: randomUUID(), leadId: lead.id, name: lead.name, phone: lead.phone,
+      result: 'sold', registeredAt: new Date().toISOString(), approach: prior?.approach || '',
+      retryAt: '', notes: String(input.notes ?? '').slice(0, 600), detection: 'confirmacao',
+    });
     return state();
+  }
+  if (path === '/api/next' && !attempt) return advance(input);
+  if (path === '/api/prepare' || path === '/api/manual') {
+    if (attempt && !(path === '/api/prepare' && attempt.phase === 'manual-ready' && attempt.leadId === input.leadId)) {
+      throw new Error('Finalize ou cancele a tentativa atual antes de avançar.');
+    }
+    const lead = await currentLead(input.leadId);
+    return prepareLead(lead, input.approach, path === '/api/manual');
   }
   if (!attempt || input.attemptId !== attempt.attemptId) {
     throw new Error('A tentativa mudou. Atualize o painel.');
@@ -184,12 +244,14 @@ async function action(path, input) {
     if (attempt.phase !== 'ready') throw new Error('O número precisa estar preparado para confirmar a ligação.');
     const lead = await currentLead(attempt.leadId);
     if (lead.phone !== attempt.phone) throw new Error('O telefone mudou na planilha. Prepare-o novamente.');
+    if (APPROACHES.includes(input.approach)) attempt.approach = input.approach;
     attempt.phase = 'dialing';
     attempt.requestedAt = Date.now();
     try {
       if (!demo) await phoneLink('dial', attempt.phone);
     } catch (error) {
-      review(attempt, 'manual', error.message);
+      attempt.phase = 'manual-ready';
+      attempt.message = error.message;
     }
     return state();
   }
@@ -198,22 +260,22 @@ async function action(path, input) {
     return state();
   }
   if (path === '/api/cancel') {
-    if (attempt.phase === 'active') throw new Error('Encerre a chamada antes de cancelar o registro.');
+    if (['active', 'dialing'].includes(attempt.phase)) throw new Error('Encerre a chamada antes de cancelar o registro.');
     attempt = null;
     return state();
   }
   if (path === '/api/result') {
     if (attempt.phase !== 'review') throw new Error('Confirme o término da chamada antes de registrar.');
     const entry = resultEntry(attempt, input);
-    if (demo) {
-      const lead = demoSheet.leads.find(item => item.id === entry.leadId);
-      Object.assign(lead, leadPatch(lead, entry));
-      demoSheet.history.push(entry);
-    } else {
-      await sheets.save(entry);
-      loadedAt = 0;
-    }
+    await saveEntry(entry);
     attempt = null;
+    if (input.prepareNext === true) {
+      try {
+        return await advance(input, entry.leadId);
+      } catch (error) {
+        return { ...state(), advanceError: error.message };
+      }
+    }
     return state();
   }
   throw new Error('Ação desconhecida.');

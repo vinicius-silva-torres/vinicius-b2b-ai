@@ -147,13 +147,13 @@ export class GoogleSheets {
     const historyTab = tabs.find(sheet => sheet.title === HISTORY_TAB);
     const ranges = new URLSearchParams();
     ranges.append('ranges', range(LEAD_TAB, `A1:${columnName(leadTab.gridProperties.columnCount)}`));
-    if (historyTab) ranges.append('ranges', range(HISTORY_TAB, 'A1:M'));
+    if (historyTab) ranges.append('ranges', range(HISTORY_TAB, `A1:${columnName(Math.min(HISTORY_HEADERS.length, historyTab.gridProperties.columnCount))}`));
     const { valueRanges } = await this.request(`/values:batchGet?${ranges}`);
     const leadData = readLeads(valueRanges[0].values ?? []);
     const historyRows = valueRanges[1]?.values ?? [];
     return {
       ...leadData, history: readHistory(historyRows), tabs, leadTab, historyTab,
-      needsHeader: !historyRows.length,
+      needsHeader: HISTORY_HEADERS.some((name, index) => historyRows[0]?.[index] !== name),
     };
   }
 
@@ -170,6 +170,8 @@ export class GoogleSheets {
       historyId = Math.max(0, ...snapshot.tabs.map(tab => tab.sheetId)) + 1;
       requests.push({ addSheet: { properties: { title: HISTORY_TAB, sheetId: historyId, gridProperties: { frozenRowCount: 1 } } } });
     }
+    const missingColumns = HISTORY_HEADERS.length - (snapshot.historyTab?.gridProperties?.columnCount ?? HISTORY_HEADERS.length);
+    if (missingColumns > 0) requests.push({ appendDimension: { sheetId: historyId, dimension: 'COLUMNS', length: missingColumns } });
     if (snapshot.needsHeader) {
       requests.push({ updateCells: {
         start: { sheetId: historyId, rowIndex: 0, columnIndex: 0 },

@@ -75,7 +75,8 @@ h3 { font-size: .85rem; color: #bed990; margin-bottom: 7px; }
 .lead-heading { margin-bottom: 12px; }
 .lead-details { display: flex; gap: 8px 16px; flex-wrap: wrap; color: var(--muted); }
 .lead-details #lead-phone { font-variant-numeric: tabular-nums; color: #f2f7ee; }
-#next-action { margin-top: 9px; }
+#next-action, #lead-preparation, #lead-person { margin-top: 9px; }
+#other-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 9px; margin-top: 11px; }
 fieldset { border: 0; padding: 0; margin: 0; }
 legend { margin-bottom: 7px; color: var(--muted); font-size: .88rem; }
 .approaches { margin: 18px 0 12px; }

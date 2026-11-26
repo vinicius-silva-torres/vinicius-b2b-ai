@@ -51,6 +51,8 @@
             <a id="preview-link" href="#" target="_blank" rel="noopener noreferrer" hidden>Abrir prévia ↗</a>
           </div>
           <p id="next-action" class="context" hidden></p>
+          <p id="lead-preparation" class="context" hidden></p>
+          <p id="lead-person" class="context" hidden></p>
           <fieldset class="approaches">
             <legend>Abordagem</legend>
             <div class="approach-options">
@@ -72,6 +74,8 @@
             <button id="open-phone" type="button" class="quiet" hidden>Abrir Phone Link</button>
             <button id="review" type="button">Registrar resultado</button>
             <button id="skip" type="button" class="quiet">Pular contato</button>
+            <button id="confirm-sale" type="button" hidden>Marcar venda fechada</button>
+            <a id="whatsapp-preview" target="_blank" rel="noopener noreferrer" hidden>Abrir prévia no WhatsApp ↗</a>
           </div>
         </div>
         <p id="empty" class="context">Escolha uma etapa ou atualize a planilha para carregar os contatos.</p>
@@ -81,7 +85,7 @@
       <h2 id="score-title">Resultados por abordagem</h2>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Abordagem</th><th>Tentativas</th><th>Ofertas feitas</th><th>Prévia aceita</th><th>Quer fechar</th></tr></thead>
+          <thead><tr><th>Abordagem</th><th>Tentativas</th><th>Ofertas feitas</th><th>Prévia aceita</th><th>Quer fechar</th><th>Vendas</th></tr></thead>
           <tbody id="score-body"></tbody>
         </table>
       </div>
@@ -107,8 +111,13 @@
         <label><input type="radio" name="outcome" value="proposal"><span>Quer fechar</span></label>
       </fieldset>
       <label id="retry-label" hidden>Retornar em <input id="retry" type="datetime-local"></label>
+      <div id="other-fields" hidden>
+        <label>Nome do responsável <input id="owner" type="text" maxlength="100"></label>
+        <label>Melhor horário informado <input id="best-time" type="text" maxlength="140" placeholder="Ex.: de segunda a sexta, após as 15h"></label>
+      </div>
       <label>Observação <textarea id="notes" rows="2" maxlength="600" placeholder="Ex.: falei com a recepção, responsável disponível amanhã."></textarea></label>
       <label class="check"><input id="pitched" type="checkbox"> Apresentei a oferta</label>
+      <label class="check"><input id="prepare-next" type="checkbox" checked> Preparar o telefone do próximo contato</label>
       <p id="result-error" role="alert"></p>
       <div class="dialog-actions">
         <button id="cancel-attempt" type="button" class="quiet">Não cheguei a ligar</button>

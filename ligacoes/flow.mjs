@@ -6,7 +6,10 @@ export const HISTORY_HEADERS = [
   'ID da tentativa', 'ID do lead', 'Empresa', 'Telefone',
   'Início observado', 'Fim observado', 'Registrada em', 'Abordagem',
   'Resultado', 'Retornar em', 'Observação', 'Oferta apresentada', 'Modo de detecção',
+  'Responsável', 'Melhor horário',
 ];
+
+const ORIGINAL_HISTORY_COLUMNS = 13;
 
 const columns = {
   name: 'Nome Limpo do Local', phone: 'Telefone', neighborhood: 'Bairro',
@@ -27,6 +30,23 @@ export const RESULTS = {
 
 export function normalize(value) {
   return String(value ?? '').normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().trim();
+}
+
+export function safeLink(value) {
+  try {
+    const url = new URL(value);
+    if (url.protocol === 'https:' && !url.username && !url.password) return url.href;
+  } catch {}
+  return '';
+}
+
+export function isPreviewReady(lead) {
+  return Boolean(previewLink(lead)) || /^(sim|pronta|feito|feita|s|✅)(?:\s|$)/i.test(lead.preview);
+}
+
+function previewLink(lead) {
+  const labeledLink = lead.notes?.match(/(?:^|\n)\s*(?:link da pr.via|pr.via)\s*:\s*(https:\/\/\S+)/i)?.[1];
+  return safeLink(lead.previewUrl) || safeLink(lead.preview) || safeLink(labeledLink);
 }
 
 export function brazilianPhone(value) {
@@ -65,7 +85,8 @@ export function readLeads([headers = [], ...rows]) {
 export function readHistory(rows) {
   const entries = [];
   if (!rows.length) return entries;
-  if (HISTORY_HEADERS.some((name, index) => rows[0][index] !== name)) {
+  if (HISTORY_HEADERS.some((name, index) =>
+    rows[0][index] !== name && (index < ORIGINAL_HISTORY_COLUMNS || Boolean(rows[0][index])))) {
     throw new Error(`Cabeçalho incompatível em ${HISTORY_TAB}. Confira a aba antes de continuar.`);
   }
   for (const row of rows.slice(1)) {
@@ -73,6 +94,7 @@ export function readHistory(rows) {
     entries.push({
       attemptId: row[0], leadId: row[1], phone: row[3], registeredAt: row[6], approach: row[7],
       result: row[8], retryAt: row[9], notes: row[10], pitched: row[11] === 'Sim', detection: row[12],
+      owner: row[13], bestTime: row[14],
     });
   }
   return entries;
@@ -85,18 +107,49 @@ export function classify(lead, last, now = Date.now()) {
   if (last?.retryAt && ['callback', 'other', 'unanswered'].includes(last.result)) {
     return Date.parse(last.retryAt) > now ? 'retornos' : 'ligar';
   }
-  if (stage === 'interessada' || stage === 'proposta enviada' || last?.result === 'proposal') return 'acompanhar';
+  if (stage === 'interessada' || stage === 'proposta enviada' || ['other', 'proposal'].includes(last?.result)) return 'acompanhar';
   return 'ligar';
 }
 
 export function queueFrom(sheet, now = Date.now()) {
-  const latest = new Map(sheet.history.map(item => [item.leadId, item]));
+  const latest = new Map();
+  const people = new Map();
+  const interested = new Set();
+  for (const entry of sheet.history) {
+    latest.set(entry.leadId, entry);
+    if (['preview', 'proposal', 'sold'].includes(entry.result)) interested.add(entry.leadId);
+    if (entry.owner || entry.bestTime) {
+      const previous = people.get(entry.leadId);
+      people.set(entry.leadId, {
+        owner: entry.owner || previous?.owner,
+        bestTime: entry.bestTime || previous?.bestTime,
+      });
+    }
+  }
   return sheet.leads.map(({ rowIndex, ...lead }) => {
     const last = latest.get(lead.id);
-    return { ...lead, last, queue: classify(lead, last, now) };
+    return {
+      ...lead, last, queue: classify(lead, last, now),
+      owner: lead.owner || people.get(lead.id)?.owner || '',
+      bestTime: people.get(lead.id)?.bestTime || '',
+      previewReady: isPreviewReady(lead),
+      previewUrl: previewLink(lead),
+      cold: !['interessada', 'proposta enviada', 'fechada', 'sem interesse', 'nao contatar'].includes(normalize(lead.stage)) &&
+        !interested.has(lead.id),
+    };
   }).sort((first, second) =>
-    Number(Boolean(second.last?.retryAt)) - Number(Boolean(first.last?.retryAt)) ||
-    (Number(second.score) || 0) - (Number(first.score) || 0));
+    Number(second.queue === 'ligar' && Boolean(second.last?.retryAt)) - Number(first.queue === 'ligar' && Boolean(first.last?.retryAt)) ||
+    Number(Boolean(second.previewUrl)) - Number(Boolean(first.previewUrl)) ||
+    Number(second.previewReady) - Number(first.previewReady) ||
+    (Number(second.score?.replace?.(',', '.') ?? second.score) || 0) - (Number(first.score?.replace?.(',', '.') ?? first.score) || 0));
+}
+
+export function filterQueue(leads, { queue = 'ligar', search = '', noSite = false, exclude = [] } = {}) {
+  const words = normalize(search).split(/\s+/).filter(Boolean);
+  const omitted = new Set(Array.isArray(exclude) ? exclude : []);
+  return leads.filter(lead => lead.queue === queue && !omitted.has(lead.id) &&
+    (!noSite || normalize(lead.site).includes('sem site')) &&
+    words.every(word => normalize([lead.name, lead.niche, lead.neighborhood, lead.phone].join(' ')).includes(word)));
 }
 
 const dateFormatter = new Intl.DateTimeFormat('pt-BR', {
@@ -118,6 +171,8 @@ export function resultEntry(attempt, input, now = new Date()) {
   return {
     ...attempt, result: input.result, approach: input.approach, retryAt,
     notes: String(input.notes ?? '').trim().slice(0, 600),
+    owner: input.result === 'other' ? String(input.owner ?? '').trim().slice(0, 100) : '',
+    bestTime: input.result === 'other' ? String(input.bestTime ?? '').trim().slice(0, 140) : '',
     pitched: input.pitched === true, registeredAt,
   };
 }
@@ -127,8 +182,11 @@ export function leadPatch(lead, entry) {
   const updates = {};
   const stage = normalize(lead.stage);
   const advanced = ['proposta enviada', 'fechada', 'sem interesse', 'nao contatar'].includes(stage);
+  if (entry.result === 'sold') return { stage: 'Fechada', next: 'Combinar entrega do site' };
   if (!['unanswered', 'invalid'].includes(entry.result)) updates.date = date;
-  if (entry.notes) updates.notes = [lead.notes, `[${date}] ${entry.notes}`].filter(Boolean).join('\n').slice(-45000);
+  const details = [entry.notes, entry.owner && `Responsável: ${entry.owner}`,
+    entry.bestTime && `Melhor horário: ${entry.bestTime}`].filter(Boolean).join(' | ');
+  if (details) updates.notes = [lead.notes, `[${date}] ${details}`].filter(Boolean).join('\n').slice(-45000);
   if (entry.retryAt) updates.next = `Retornar em ${dateFormatter.format(new Date(entry.retryAt))}`;
   switch (entry.result) {
     case 'preview':
@@ -136,7 +194,7 @@ export function leadPatch(lead, entry) {
       if (!advanced) updates.next = 'Enviar prévia';
       break;
     case 'other':
-      if (!entry.retryAt) updates.next = 'Falar com responsável';
+      if (!entry.retryAt) updates.next = entry.bestTime ? `Falar com responsável · ${entry.bestTime}` : 'Falar com responsável';
       break;
     case 'unanswered':
       if (lead.next && ['interessada', 'proposta enviada'].includes(stage)) delete updates.next;
@@ -167,16 +225,18 @@ export function historyRow(entry) {
     entry.attemptId, entry.leadId, entry.name, entry.phone, entry.startedAt ?? '',
     entry.endedAt ?? '', entry.registeredAt, entry.approach, entry.result, entry.retryAt,
     entry.notes, entry.pitched ? 'Sim' : 'Não', entry.detection ?? 'manual',
+    entry.owner ?? '', entry.bestTime ?? '',
   ];
 }
 
 export function callSummary(history) {
   return APPROACHES.map(approach => {
-    const entries = history.filter(item => item.approach === approach);
+    const entries = history.filter(item => item.approach === approach && item.result !== 'sold');
     return {
       approach, attempts: entries.length, pitches: entries.filter(item => item.pitched).length,
       accepted: entries.filter(item => item.result === 'preview').length,
       closing: entries.filter(item => item.result === 'proposal').length,
+      sales: history.filter(item => item.approach === approach && item.result === 'sold').length,
     };
   });
 }

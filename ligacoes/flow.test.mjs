@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
-  HISTORY_HEADERS, brazilianPhone, callSummary, classify, historyRow, leadPatch, readHistory, readLeads, resultEntry,
+  HISTORY_HEADERS, brazilianPhone, callSummary, classify, historyRow, leadPatch, queueFrom, readHistory, readLeads, resultEntry,
 } from './flow.mjs';
 import { GoogleSheets } from './sheets.mjs';
 
@@ -52,6 +52,29 @@ test('prévia e fechamento registram a intenção da pessoa', () => {
   assert.equal(callSummary([preview])[1].pitches, 1);
   const proposal = resultEntry(attempt, { result: 'proposal', approach: 'Direta' }, today);
   assert.equal(leadPatch(lead, proposal).stage, 'Interessada');
+  const sold = { ...proposal, result: 'sold' };
+  assert.equal(leadPatch(lead, sold).stage, 'Fechada');
+  assert.equal(callSummary([proposal, sold])[0].attempts, 1);
+  assert.equal(callSummary([proposal, sold])[0].sales, 1);
+});
+
+test('preserva históricos antigos, contatos frios priorizados e responsável informado', () => {
+  const old = readHistory([HISTORY_HEADERS.slice(0, 13)]);
+  const entry = resultEntry(attempt, {
+    result: 'other', approach: 'Direta', owner: 'Ana', bestTime: 'Após as 15h',
+  }, today);
+  const history = [...old, ...readHistory([HISTORY_HEADERS, historyRow(entry)])];
+  const entries = queueFrom({ leads: [
+    { ...lead, score: 96 },
+    { ...lead, id: 'second', score: 80, notes: 'Link da prévia: https://example.test/previa' },
+  ], history });
+  assert.equal(entries[0].id, 'second');
+  assert.equal(entries[0].cold, true);
+  assert.equal(entries[0].previewReady, true);
+  assert.equal(entries[1].queue, 'acompanhar');
+  assert.equal(entries[1].owner, 'Ana');
+  assert.equal(entries[1].bestTime, 'Após as 15h');
+  assert.match(leadPatch(lead, entry).notes, /Responsável: Ana/);
 });
 
 test('grava o histórico e a etapa num único batch e reconhece tentativas já salvas', async () => {
