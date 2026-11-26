@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Ligações · Vinicius Web Studio</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <header class="top">
+    <div class="brand"><span class="mark" aria-hidden="true">V</span><span>Vinicius Web Studio</span></div>
+    <div class="top-actions">
+      <span id="mode" class="mode">Conectando…</span>
+      <a id="google" href="/oauth/start" hidden>Conectar Google</a>
+      <button id="diagnose" class="quiet" type="button" hidden>Diagnóstico do Phone Link</button>
+      <button id="refresh" class="quiet" type="button">Atualizar</button>
+    </div>
+  </header>
+  <main>
+    <div class="intro">
+      <h1>Ligações</h1>
+      <p id="feedback" role="status" aria-live="polite"></p>
+    </div>
+    <div class="workspace">
+      <aside class="panel queue-panel" aria-labelledby="queue-title">
+        <div class="queue-title"><h2 id="queue-title">Fila</h2><span id="queue-count"></span></div>
+        <label for="queue" class="visual-hidden">Etapa</label>
+        <select id="queue">
+          <option value="ligar">Ligar agora</option>
+          <option value="retornos">Retornos agendados</option>
+          <option value="acompanhar">Acompanhar</option>
+          <option value="revisar">Revisar dados</option>
+          <option value="encerrados">Encerrados</option>
+        </select>
+        <label for="search" class="visual-hidden">Buscar na fila</label>
+        <input id="search" type="search" placeholder="Buscar empresa, bairro ou nicho" autocomplete="off">
+        <label class="check"><input id="no-site" type="checkbox"> Só negócios sem site</label>
+        <ul id="queue-list" class="queue-list"></ul>
+      </aside>
+      <article class="panel call-panel" aria-labelledby="lead-name">
+        <div class="lead-heading">
+          <div><p id="lead-context" class="context"></p><h2 id="lead-name">Selecione um contato</h2></div>
+          <span class="state-pill" id="call-status" role="status">Aguardando</span>
+        </div>
+        <div id="lead-content" hidden>
+          <div class="lead-details">
+            <span id="lead-phone"></span><span id="lead-site"></span><span id="lead-rating"></span><span id="lead-preview"></span>
+            <a id="maps" href="#" target="_blank" rel="noopener noreferrer" hidden>Google Maps ↗</a>
+            <a id="preview-link" href="#" target="_blank" rel="noopener noreferrer" hidden>Abrir prévia ↗</a>
+          </div>
+          <p id="next-action" class="context" hidden></p>
+          <p id="lead-preparation" class="context" hidden></p>
+          <p id="lead-person" class="context" hidden></p>
+          <fieldset class="approaches">
+            <legend>Abordagem</legend>
+            <div class="approach-options">
+              <label><input type="radio" name="approach" value="Direta" checked><span>1 · Direta</span></label>
+              <label><input type="radio" name="approach" value="Google Maps"><span>2 · Google Maps</span></label>
+              <label><input type="radio" name="approach" value="Falar com o dono"><span>3 · Falar com o dono</span></label>
+            </div>
+          </fieldset>
+          <div class="script">
+            <div><h3>Abertura</h3><blockquote id="opening"></blockquote></div>
+            <div><h3>Sua oferta</h3><p id="offer"></p></div>
+            <div><h3>Se perguntarem o preço</h3><p id="price"></p></div>
+            <div id="gatekeeper" hidden><h3>Se outra pessoa atender</h3><p>Qual é o melhor horário pra eu falar com quem cuida dessa parte?</p></div>
+          </div>
+          <div class="call-actions">
+            <button id="prepare" type="button" class="primary">Preparar número</button>
+            <button id="dial" type="button" class="primary" hidden>Ligar agora</button>
+            <button id="copy" type="button">Copiar telefone</button>
+            <button id="open-phone" type="button" class="quiet" hidden>Abrir Phone Link</button>
+            <button id="review" type="button">Registrar resultado</button>
+            <button id="skip" type="button" class="quiet">Pular contato</button>
+            <button id="confirm-sale" type="button" hidden>Marcar venda fechada</button>
+            <a id="whatsapp-preview" target="_blank" rel="noopener noreferrer" hidden>Abrir prévia no WhatsApp ↗</a>
+          </div>
+        </div>
+        <p id="empty" class="context">Escolha uma etapa ou atualize a planilha para carregar os contatos.</p>
+      </article>
+    </div>
+    <section class="panel score-panel" aria-labelledby="score-title">
+      <h2 id="score-title">Resultados por abordagem</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Abordagem</th><th>Tentativas</th><th>Ofertas feitas</th><th>Prévia aceita</th><th>Quer fechar</th><th>Vendas</th></tr></thead>
+          <tbody id="score-body"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+  <dialog id="result-dialog" aria-labelledby="result-title">
+    <form id="result-form">
+      <div class="dialog-heading">
+        <h2 id="result-title">Como foi a ligação?</h2>
+        <button type="button" id="close-result" class="quiet" aria-label="Fechar popup">Fechar</button>
+      </div>
+      <p id="result-company" class="context"></p>
+      <p id="result-message" role="status" class="context"></p>
+      <fieldset class="outcomes">
+        <legend>Resultado</legend>
+        <label><input type="radio" name="outcome" value="preview" required><span>Quer a prévia</span></label>
+        <label><input type="radio" name="outcome" value="callback"><span>Pediu retorno</span></label>
+        <label><input type="radio" name="outcome" value="other"><span>Falei com outra pessoa</span></label>
+        <label><input type="radio" name="outcome" value="unanswered"><span>Não atendeu</span></label>
+        <label><input type="radio" name="outcome" value="uninterested"><span>Sem interesse</span></label>
+        <label><input type="radio" name="outcome" value="stop"><span>Não contatar</span></label>
+        <label><input type="radio" name="outcome" value="invalid"><span>Número inválido</span></label>
+        <label><input type="radio" name="outcome" value="proposal"><span>Quer fechar</span></label>
+      </fieldset>
+      <label id="retry-label" hidden>Retornar em <input id="retry" type="datetime-local"></label>
+      <div id="other-fields" hidden>
+        <label>Nome do responsável <input id="owner" type="text" maxlength="100"></label>
+        <label>Melhor horário informado <input id="best-time" type="text" maxlength="140" placeholder="Ex.: de segunda a sexta, após as 15h"></label>
+      </div>
+      <label>Observação <textarea id="notes" rows="2" maxlength="600" placeholder="Ex.: falei com a recepção, responsável disponível amanhã."></textarea></label>
+      <label class="check"><input id="pitched" type="checkbox"> Apresentei a oferta</label>
+      <label class="check"><input id="prepare-next" type="checkbox" checked> Preparar o telefone do próximo contato</label>
+      <p id="result-error" role="alert"></p>
+      <div class="dialog-actions">
+        <button id="cancel-attempt" type="button" class="quiet">Não cheguei a ligar</button>
+        <button type="submit" class="primary">Salvar e avançar</button>
+      </div>
+    </form>
+  </dialog>
+  <dialog id="diagnostic-dialog" aria-labelledby="diagnostic-title">
+    <div class="dialog-heading">
+      <h2 id="diagnostic-title">Diagnóstico do Phone Link</h2>
+      <button type="button" id="close-diagnostic" class="quiet">Fechar</button>
+    </div>
+    <p class="context">Controles reconhecidos na janela de chamadas.</p>
+    <pre id="diagnostic-output"></pre>
+  </dialog>
+</body>
+</html>
