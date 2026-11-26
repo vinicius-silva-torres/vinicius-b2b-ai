@@ -17,7 +17,11 @@ Uma lista de estabelecimentos, sozinha, não mostra quais contatos exigem atenç
 - Carregamento de dados por `fetch` a partir de um endpoint externo do Cloudflare Worker.
 - Exibição parcial de identificadores de empresas na interface.
 
-> **Escopo:** este repositório contém o **front-end** (HTML, CSS e JavaScript no arquivo `index.html`). A coleta dos dados, a planilha de origem e o código do Worker **não estão versionados aqui**. Não se trata de um sistema completo de automação de prospecção neste repositório.
+> **Escopo:** a demonstração pública contém o painel web em `index.html`. A coleta dos dados, a planilha de origem e o código do Worker ficam fora do repositório.
+
+## Ligações no Windows
+
+O painel local carrega a fila do Google Sheets, apresenta três roteiros, prepara o número no Vincular ao Celular e registra o resultado de cada chamada. Abra [o guia de Ligações](ligacoes/README.md) para usar a demonstração ou conectar sua planilha.
 
 ## Tecnologias
 
